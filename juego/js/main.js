@@ -59,6 +59,11 @@ $("document").ready(function() {
         }
         $(this.idimg).attr("src",'images/'+this.eleccionJugada+'.jpg');
     }
+    modosheldonlagarto(eleccionJugada){
+      this.eleccionJugada="Lagarto";
+      $(this.idimg).attr("src",'images/'+this.eleccionJugada+'.jpg');
+    }
+
     //Declaramos una funcion para que eliga una jugada al azar y tambien que nos modifique la imagen en el html.
     elegirJugada(eleccionJugada){
       let eleccion = Math.floor((Math.random()*5)+1);
@@ -95,16 +100,24 @@ $("document").ready(function() {
     jugar(jugadahumano){
       if(this.usuario.credito>=this.usuario.apuesta){//Preguntamos si el jugador usuario tiene credito suficiente para jugar.
           this.usuario.apostar();                   //En caso de que tenga credito, apuesta.
+          this.usuario.elegirJugada(jugadahumano);   //Toma el valor que eligio el usuario.
           if ($(".js-sheldon:checked").val()=="on") {//Preguntamos si el checkbox esta checkeado para utilizar la variacion modosheldon.
-            this.pc.modosheldon();
+            if((this.usuario.eleccionJugada==="Piedra")||(this.usuario.eleccionJugada==="Papel")||(this.usuario.eleccionJugada==="Tijera")){
+              this.pc.modosheldon();
+            }
+            else if (this.usuario.eleccionJugada=="Lagarto") {
+              this.pc.modosheldonlagarto();
+            }
+            else {                                    //Sino que eliga una jugada al azar.
+              this.pc.elegirJugada();
+            }
           }
-          else {                                    //Sino que eliga una jugada al azar.
+          else {
             this.pc.elegirJugada();
           }
 
-          this.usuario.elegirJugada(jugadahumano);   //Toma el valor que eligio el usuario.
           if(this.usuario.eleccionJugada === this.pc.eleccionJugada){//Los compara para ver si hay empate.
-            alert("empataste");
+            alert("Empataste");
             console.log(alert);
           }else if(this.usuario.eleccionJugada == "Piedra" && this.pc.eleccionJugada == "Tijera"//Sino, cualquiera de estas opciones son ganador.
                         ||
@@ -129,15 +142,20 @@ $("document").ready(function() {
             )
           {
             alert("Ganaste");
-            if (this.usuario.eleccionJugada=="Spock"){
-              this.usuario.spockfriendly();
-              this.usuario.actualizarContador();
+            if ($(".js-spockfriendly:checked").val()=="on") {//Preguntamos si el checkbox esta checkeado para utilizar la variacion spockfriendly.
+              if (this.usuario.eleccionJugada=="Spock"){
+                this.usuario.spockfriendly();
+                this.usuario.actualizarContador();
+              }
+              else {
+                this.usuario.actualizarCredito(); //Actualiza el contador y el credito.
+                this.usuario.actualizarContador();
+              }
             }
             else {
               this.usuario.actualizarCredito(); //Actualiza el contador y el credito.
               this.usuario.actualizarContador();
             }
-
           }
           else//Sino dice que el usuario perdio y actualiza el contador de la pc
           {
@@ -155,7 +173,7 @@ $("document").ready(function() {
   }
   let jugada = new juego();                     //Crea un objeto juego para comenzar a jugar.
   $(".eleccion").on('click', function() {       //Llama mediante el atributo id eleccion y pregunta si hizo click para ejecutar
-                                                //siguiente funcion.    
+                                                //siguiente funcion.
         jugada.jugar($(this).attr("id"));
     });
 });
